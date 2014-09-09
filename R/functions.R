@@ -36,16 +36,24 @@ runLM <- function(gdat, pdat, calibrate=TRUE, joinby="SID", resids=FALSE) {
 #' @param geneSigns Dataframe with contrast codes for genes
 #' @param calibrate Use eudaimonic/hedonic z-scores from Fredrickson et al. (default \code{TRUE}). Set to FALSE to use Brown et al.'s predictors.
 #' @param joinby On which field to join the Psychometric / Genetic data (this should be left as is)
-#' @param resids Whether to run the RR53 on the residualized gene data (\code{TRUE}) or on the raw data (\code{FALSE}=default).
+#' @param resids Whether gedata is the residualized gene data (\code{TRUE}) or on the raw data (\code{FALSE}=default).
 #' @return A dataframe containing the estimated beta weights for the eudaimonic factor.
 #' @export
 rr53 <- function(gedata, preds, geneSigns, calibrate=TRUE, joinby="SID",
                  resids=FALSE) {
-    gedata %>% group_by(Gene) %>%
+    lmResults <- gedata %>% group_by(Gene) %>%
         do(runLM(., preds, calibrate, joinby, resids)) %>%
-        ungroup %>%
-        inner_join(geneSigns, lmResults, by="Gene") %>%
-        mutate(Y=x*Sign) %>% select(Gene, Pred, Y)
+        ungroup
+    if (!resids) { # now modulate by the sign of the gene
+        # unless we are dealing with the residuals
+        # in which case contrast codes have already been applied,
+        # at the very beginning.
+        res <- inner_join(geneSigns, lmResults, by="Gene") %>%
+            mutate(Y=x*Sign) %>% select(Gene, Pred, Y)
+    } else {
+        res <- lmResults %>% select(Gene, Pred, Y=x) %>% as.data.frame
+    }
+    return(res)
 }
 
 #' Perform a one sample t-test on the beta values
@@ -101,6 +109,9 @@ shuffleAndRecomputeMAC <- function(x) {
 #' @return Data frame with new residualized gene values.
 #' @export
 getGeneResids <- function(x) {
+    
+    # first we need to apply the contrast codes to the gene values
+    # beforehand so that the direction of the prediction is not lost.
     x.lm <- lm(Value ~ Male + Age + White + BMI + Alcohol + Smoke +
                    Illness + CD3D + CD3E + CD4 + CD8A + CD19 + FCGR3A +
                        NCAM1 + CD14, x)
