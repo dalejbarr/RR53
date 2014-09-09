@@ -17,7 +17,7 @@ rr53(gedata, preds, geneSigns, calibrate = TRUE, joinby = "SID",
 
 \item{joinby}{On which field to join the Psychometric / Genetic data (this should be left as is)}
 
-\item{resids}{Whether to run the RR53 on the residualized gene data (\code{TRUE}) or on the raw data (\code{FALSE}=default).}
+\item{resids}{Whether gedata is the residualized gene data (\code{TRUE}) or on the raw data (\code{FALSE}=default).}
 }
 \value{
 A dataframe containing the estimated beta weights for the eudaimonic factor.
