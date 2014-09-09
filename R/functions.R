@@ -88,3 +88,50 @@ shuffleAndRecomputeMAC <- function(x) {
     smx <- apply(x, 1, sample) # shuffle genes for each subject
     meanAbsCor(smx)
 }
+
+#######################################
+# for reshuffling residuals
+
+#' Compute the residual gene expression values
+#'
+#' Calculates residual gene expression values for a single gene after
+#' controlling for the 15 control factors in Fredrickson et al.
+#'
+#' @param x Data frame containing gene values for a single gene along with predictor values
+#' @return Data frame with new residualized gene values.
+#' @export
+getGeneResids <- function(x) {
+    x.lm <- lm(Value ~ Male + Age + White + BMI + Alcohol + Smoke +
+                   Illness + CD3D + CD3E + CD4 + CD8A + CD19 + FCGR3A +
+                       NCAM1 + CD14, x)
+    res <- x$Value
+    cc <- x %>% select(Value, Male, Age, White, BMI, Alcohol, Smoke,
+                       Illness, CD3D, CD3E, CD4, CD8A, CD19, FCGR3A,
+                       NCAM1, CD14) %>% complete.cases
+    res[cc] <- residuals(x.lm)
+    res[!cc] <- NA
+    data.frame(SID=x$SID, Gene=x$Gene, Value=res)
+}
+
+#' Run the RR53 analysis on the gene expression residuals
+#'
+#' @param gdat Data frame with residualized gene expression data
+#' @param pdat Data frame with predictors
+#' @param gSigns Data frame with gene contrast codes
+#' @return t-value for the one-sample test
+#' @export
+rr53Resids <- function(gdat, pdat, gSigns) {
+    res <- rr53(gdat, pdat, gSigns, resids=TRUE)
+    tsum <- res %>% group_by(Pred) %>% do(oneSampTest(.))
+    tsum$t[1]
+}
+
+#' Shuffle subject identifiers
+#'
+#' @param x A data frame with column \code{SID} containing subject identifiers.
+#' @return Same data frame with shuffled IDs.
+#' @export
+shuffleSubjects <- function(x) {
+    x$SID <- sample(x$SID)
+    x
+}
