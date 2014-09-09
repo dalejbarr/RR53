@@ -1,0 +1,11 @@
+Package: RR53
+Title: Reanalysis of "A functional genomic perspective on well-being"
+Version: 0.1
+Authors@R: "Dale Barr <dalejbarr3@gmail.com> [aut, cre]"
+Description: Functions for reanalysis of Fredrickson et al. (2013) data
+Depends:
+    R (>= 3.1.1),
+    dplyr,
+    tidyr
+License: GPL (>=2)
+LazyData: true
