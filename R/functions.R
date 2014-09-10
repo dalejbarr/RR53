@@ -59,9 +59,10 @@ rr53 <- function(gedata, preds, geneSigns, calibrate=TRUE, joinby="SID",
 #' Perform a one sample t-test on the beta values
 #'
 #' @param x data frame, with beta values for one of the two psychometric factors in variable named \code{Y}
+#' @param nbs number of bootstrap samples
 #' @return data frame with results of one-sample test; \code{t} and \code{p} are the results from a parametric analysis, while \code{t.b} and \code{p.b} are the results using bootstrapped standard errors.
 #' @export
-oneSampTest <- function(x, nbs=1000) {
+oneSampTest <- function(x, nbs=10000) {
     calct <- function(xx) {
         diff.se <- sd(xx)/sqrt(length(xx))
         mean(xx)/diff.se
