@@ -59,14 +59,22 @@ rr53 <- function(gedata, preds, geneSigns, calibrate=TRUE, joinby="SID",
 #' Perform a one sample t-test on the beta values
 #'
 #' @param x data frame, with beta values for one of the two psychometric factors in variable named \code{Y}
-#' @return data frame with results of one-sample test.
+#' @return data frame with results of one-sample test; \code{t} and \code{p} are the results from a parametric analysis, while \code{t.b} and \code{p.b} are the results using bootstrapped standard errors.
 #' @export
-oneSampTest <- function(x) {
-    diff.se <- sd(x$Y)/sqrt(length(x$Y))
-    t.val <- mean(x$Y)/diff.se
+oneSampTest <- function(x, nbs=1000) {
+    calct <- function(xx) {
+        diff.se <- sd(xx)/sqrt(length(xx))
+        mean(xx)/diff.se
+    }
+    t.val <- calct(x$Y)
     degfreedom <- length(x$Y)-1
     p.val <- 2*pt(abs(t.val), degfreedom, lower.tail=FALSE)
-    data.frame(x=mean(x$Y), t=t.val, p=p.val)
+    bootdist <- replicate(nbs, 
+                          mean(sample(x$Y, length(x$Y), replace=TRUE)))
+    se.boot <- sd(bootdist)
+    t.boot <- mean(x$Y)/se.boot
+    p.boot <- 2*pt(abs(t.boot), degfreedom, lower.tail=FALSE)
+    data.frame(x=mean(x$Y), t=t.val, p=p.val, t.b=t.boot, p.b=p.boot)
 }
 
 #######################
@@ -129,12 +137,12 @@ getGeneResids <- function(x) {
 #' @param gdat Data frame with residualized gene expression data
 #' @param pdat Data frame with predictors
 #' @param gSigns Data frame with gene contrast codes
-#' @return t-value for the one-sample test
+#' @return t-value for the one-sample test (bootstrapped SEs)
 #' @export
 rr53Resids <- function(gdat, pdat, gSigns) {
     res <- rr53(gdat, pdat, gSigns, resids=TRUE)
     tsum <- res %>% group_by(Pred) %>% do(oneSampTest(.))
-    tsum$t[1]
+    tsum$t.b[1]
 }
 
 #' Shuffle subject identifiers

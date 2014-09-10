@@ -13,7 +13,7 @@ rr53Resids(gdat, pdat, gSigns)
 \item{gSigns}{Data frame with gene contrast codes}
 }
 \value{
-t-value for the one-sample test
+t-value for the one-sample test (bootstrapped SEs)
 }
 \description{
 Run the RR53 analysis on the gene expression residuals

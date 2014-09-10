@@ -3,13 +3,13 @@
 \alias{oneSampTest}
 \title{Perform a one sample t-test on the beta values}
 \usage{
-oneSampTest(x)
+oneSampTest(x, nbs = 1000)
 }
 \arguments{
 \item{x}{data frame, with beta values for one of the two psychometric factors in variable named \code{Y}}
 }
 \value{
-data frame with results of one-sample test.
+data frame with results of one-sample test; \code{t} and \code{p} are the results from a parametric analysis, while \code{t.b} and \code{p.b} are the results using bootstrapped standard errors.
 }
 \description{
 Perform a one sample t-test on the beta values
