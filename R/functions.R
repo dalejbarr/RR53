@@ -194,6 +194,7 @@ generateVCMatrix <- function(dat) {
 #' @param indep whether to generate dependent (default=\code{FALSE}) or independent (\code{TRUE}) data.
 #' @return An n x 53 matrix, with subjects forming rows and genes forming columns.
 #' @seealso \code{\link{generateVCMatrix}}
+#' @importFrom MASS mvrnorm
 simulateGeneData <- function(n, gmeans, gvcov, indep=FALSE) {
     if (indep) {
         gvcov[upper.tri(gvcov)] <- 0
