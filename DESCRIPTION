@@ -6,6 +6,7 @@ Description: Functions for reanalysis of Fredrickson et al. (2013) data
 Depends:
     R (>= 3.1.1),
     dplyr,
-    tidyr
+    tidyr,
+    MASS
 License: GPL (>=2)
 LazyData: true

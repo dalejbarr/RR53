@@ -155,3 +155,49 @@ shuffleSubjects <- function(x) {
     x$SID <- sample(x$SID)
     x
 }
+
+#' Generate variance-covariance matrix for gene expression data
+#'
+#' @param dat matrix of raw gene expression data
+#' @return Estimated variance-covariance matrix
+#' @export
+generateVCMatrix <- function(dat) {
+    # derive the variance-covariance matrix of the
+    # data from the raw data (dat)
+    gmx.var <- apply(dat, 2, var) # variance for each unit
+    cmx <- cor(dat) # correlations between units
+    # now create the full variance covariance matrix
+    # using some matrix multiplication tricks
+    omx <- matrix(1, nrow=dim(cmx)[1], ncol=dim(cmx)[2]) # matrix of ones
+    cov1.sd <- t(sapply(sqrt(gmx.var), rep, times=ncol(cmx)))
+    cov1.sd.t <- t(cov1.sd)
+    cov1.mx <- omx
+    cov1.mx[upper.tri(cov1.mx)] <- cov1.sd[upper.tri(cov1.sd)]
+    cov1.mx[lower.tri(cov1.mx)] <- cov1.sd.t[lower.tri(cov1.sd.t)]
+    cov2.sd <- sapply(sqrt(gmx.var), rep, times=nrow(cmx))
+    cov2.sd.t <- t(cov2.sd)
+    cov2.mx <- omx
+    cov2.mx[upper.tri(cov2.mx)] <- cov2.sd[upper.tri(cov2.sd)]
+    cov2.mx[lower.tri(cov2.mx)] <- cov2.sd.t[lower.tri(cov2.sd.t)]
+    var.mx <- omx
+    diag(var.mx) <- gmx.var
+    # this is the full variance/covariance matrix
+    cmx * var.mx * cov1.mx * cov2.mx
+}
+
+#' Generate simulated gene expresion data
+#'
+#' Simply wraps a call to \code{\link{mvrnorm}} in package \code{MASS}.  If \code{indep} is \code{TRUE}, zeroes out all of the covariances in the matrix.
+#' @param n Number of rows (subjects) of data to generate
+#' @param gmeans Mean expression for each gene
+#' @param gvcov
+#' @param indep whether to generate dependent (default=\code{FALSE}) or independent (\code{TRUE}) data.
+#' @return An n x 53 matrix, with subjects forming rows and genes forming columns.
+#' @seealso \code{\link{generateVCMatrix}}
+simulateGeneData <- function(n, gmeans, gvcov, indep=FALSE) {
+    if (indep) {
+        gvcov[upper.tri(gvcov)] <- 0
+        gvcov[lower.tri(gvcov)] <- 0
+    } else {}
+    mvrnorm(n, gmeans, gvcov)
+}
