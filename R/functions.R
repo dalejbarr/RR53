@@ -185,6 +185,16 @@ generateVCMatrix <- function(dat) {
     cmx * var.mx * cov1.mx * cov2.mx
 }
 
+# not exported
+#' @importFrom MASS mvrnorm
+simulateGeneMatrix <- function(n, gmeans, gvcov, indep=FALSE) {
+    if (indep) {
+        gvcov[upper.tri(gvcov)] <- 0
+        gvcov[lower.tri(gvcov)] <- 0
+    } else {}
+    mvrnorm(n, gmeans, gvcov)
+}
+
 #' Generate simulated gene expresion data
 #'
 #' Simply wraps a call to \code{\link{mvrnorm}} in package \code{MASS}.  If \code{indep} is \code{TRUE}, zeroes out all of the covariances in the matrix.
@@ -192,14 +202,13 @@ generateVCMatrix <- function(dat) {
 #' @param gmeans Mean expression for each gene
 #' @param gvcov
 #' @param indep whether to generate dependent (default=\code{FALSE}) or independent (\code{TRUE}) data.
-#' @return An n x 53 matrix, with subjects forming rows and genes forming columns.
+#' @return A dataframe with SID (subject ID), Gene and Value as columns.
 #' @seealso \code{\link{generateVCMatrix}}
-#' @importFrom MASS mvrnorm
 #' @export
 simulateGeneData <- function(n, gmeans, gvcov, indep=FALSE) {
-    if (indep) {
-        gvcov[upper.tri(gvcov)] <- 0
-        gvcov[lower.tri(gvcov)] <- 0
-    } else {}
-    mvrnorm(n, gmeans, gvcov)
+   gmxt <- simulateGeneMatrix(n, gmeans, gvcov, indep)
+   colnames(gmxt) <- names(gmeans)
+   gdf <- gmxt %>% as.data.frame %>% mutate(SID=row_number()) %>%
+       gather("Gene", "Value", -SID) %>% arrange(SID)
+   gdf
 }

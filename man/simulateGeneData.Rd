@@ -15,7 +15,7 @@ simulateGeneData(n, gmeans, gvcov, indep = FALSE)
 \item{indep}{whether to generate dependent (default=\code{FALSE}) or independent (\code{TRUE}) data.}
 }
 \value{
-An n x 53 matrix, with subjects forming rows and genes forming columns.
+A dataframe with SID (subject ID), Gene and Value as columns.
 }
 \description{
 Simply wraps a call to \code{\link{mvrnorm}} in package \code{MASS}.  If \code{indep} is \code{TRUE}, zeroes out all of the covariances in the matrix.
