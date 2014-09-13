@@ -195,6 +195,7 @@ generateVCMatrix <- function(dat) {
 #' @return An n x 53 matrix, with subjects forming rows and genes forming columns.
 #' @seealso \code{\link{generateVCMatrix}}
 #' @importFrom MASS mvrnorm
+#' @export
 simulateGeneData <- function(n, gmeans, gvcov, indep=FALSE) {
     if (indep) {
         gvcov[upper.tri(gvcov)] <- 0
