@@ -5,8 +5,8 @@ Authors@R: "Dale Barr <dalejbarr3@gmail.com> [aut, cre]"
 Description: Functions for reanalysis of Fredrickson et al. (2013) data
 Depends:
     R (>= 3.1.1),
+    MASS,
     dplyr,
-    tidyr,
-    MASS
+    tidyr
 License: GPL (>=2)
 LazyData: true
