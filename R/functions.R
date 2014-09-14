@@ -185,6 +185,33 @@ generateVCMatrix <- function(dat) {
     cmx * var.mx * cov1.mx * cov2.mx
 }
 
+#' Randomly generate psychometric/demographic data
+#'
+#' Basically wraps a call to \code{\link{mvrnorm}}, with
+#' some additional processing for categorical variables
+#' @param n number of subjects (rows)
+#' @param pmeans named vector of predictor means
+#' @param pvcov variance-covariance matrix for predictors
+#' @return a dataframe of new predictors
+#' @importFrom MASS mvrnorm
+#' @export
+simulatePsychometricData <- function(n, pmeans, pvcov) {
+    zeroOrOne <- function(x) {
+        1*(x>=.5)
+    }
+    mx <- MASS::mvrnorm(n, pmeans, pvcov)
+    colnames(mx) <- names(pmeans)
+    dmx <- as.data.frame(mx)
+    dmx$Male <- zeroOrOne(dmx$Male)
+    dmx$Age <- round(dmx$Age)
+    dmx$White <- zeroOrOne(dmx$White)
+    dmx$Alcohol <- zeroOrOne(dmx$Alcohol)
+    dmx$Smoke <- zeroOrOne(dmx$Smoke)
+    dmx$Illness <- ifelse(dmx$Illness<0, 0, round(dmx$Illness))
+    dmx$SID <- 1:nrow(dmx)
+    return(dmx[,c("SID", setdiff(colnames(dmx),"SID"))])
+}
+
 # not exported
 #' @importFrom MASS mvrnorm
 simulateGeneMatrix <- function(n, gmeans, gvcov, indep=FALSE) {
